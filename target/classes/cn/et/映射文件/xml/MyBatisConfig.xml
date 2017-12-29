@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!-- myBatis核心配置
+		1.数据库的连接信息(连接池)
+		2.取别名
+		3.指定映射的接口 或xml文件       resource指定xml文件, class指定接口
+ -->
+<configuration>
+	<!-- 指定资源文件位置 -->
+	<properties resource="oJdbc.properties"></properties>
+	<!-- 给某一个包下面的所有类取别名    类名首字母小写
+		<typeAliases>
+  			<package name="cn.easytop.lesson03.resultMap.xml" />
+  		</typeAliases>
+  		给某一个类取别名
+  	-->
+	<typeAliases>
+  		<typeAlias type="cn.et.User" alias="user"/>
+  	</typeAliases>
+	<environments default="development">
+		<environment id="development">
+			<!-- 事务管理器  默认使用jdbc的事务(自动提交) -->
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${driverClassName}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username1}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+		</environment>
+	</environments>
+	<mappers>
+  		<mapper resource="cn/et/映射文件/xml/UserMapper.xml"/><!-- 指定映射的xml文件 -->
+  	</mappers>
+</configuration>

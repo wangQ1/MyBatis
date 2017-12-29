@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	命名空间， 用于区分多個文件中的相同sql语句的唯一标识符
+		namespace="a" id="test" namespace="b" id="test"
+			a.test					b.test 
+	使用#{键}取值，实际上是先使用占位符？的方式的sql语句,然后通过键匹配，自动填充
+	使用${键}取值,是直接将值填充，等同于"+键+"的方式, 如果是字符串需要自己添加‘’单引号
+	在模糊查询时，必须使用${键}的方式取值
+	if     判断条件是否满足， 如果满足就将sql语句拼接起来
+	where  当有条件满足时 自动添加一个where
+	trim   灵活度高   prefix 在trim元素出现的地方添加prefix中的字段     如果与prefixOverrides一起使用了，
+						     那么是在prefixOverrides中的字段在sql语句中第一次出现的地方替换成prefix中的字段
+			     suffix 在trim元素结束的地方添加suffix中的字段     如果与suffixOverrides一起使用了，
+						     那么是在suffixOverrides中的字段在sql语句中倒数第一次出现的地方替换成suffix中的字段
+	set    用于修改,  在set元素出现的地方添加一个set, 并且去除最后一个条件语句中多出来的逗号
+	foreach   collection 需要循环的集合, item 单个元素, open 在循环开始时追加的sql
+	 		  close 在循环结束时追加的sql, separator每次循环添加的分隔符,最后一次不会添加  
+-->
+
+
+<!-- 接口绑定, 将接口中的方法与对应的sql声明进行绑定 -->
+<mapper namespace="cn.et.动态SQL.xml.StudentMapper">
+	<select id="queryStuByMessage" resultType="student">
+		select * from student where 1 = 1
+		<if test="stuName != null">  <!-- 判断条件是否满足， 如果满足就将sql语句拼接起来 -->
+			and stuName like '%${stuName}%'
+		</if>
+		<if test="sex != null">
+			and sex = #{sex}
+		</if>
+	</select>
+	<select id="queryStuByMessage1" resultType="student">
+		select * from student
+		<where> <!-- 当有条件满足时 自动添加一个where -->
+			<if test="stuName != null">  <!-- 判断条件是否满足， 如果满足就将sql语句拼接起来 -->
+				stuName like '%${stuName}%'
+			</if>
+			<if test="sex != null">
+				and sex = #{sex}
+			</if>
+		</where>
+	</select>
+	<select id="queryStuByMessage2" resultType="student">
+		select * from student
+		<trim prefix="where" prefixOverrides="and">
+			<if test="stuName != null">  <!-- 判断条件是否满足， 如果满足就将sql语句拼接起来 -->
+				and stuName like '%${stuName}%'
+			</if>
+			<if test="sex != null">
+				and sex = #{sex}
+			</if>
+		</trim>
+	</select>
+	<update id="updateStudent">
+		update student
+		<set>
+			<if test="stuName != null">
+				stuName = #{stuName},
+			</if>
+			<if test="age != null">
+				age = #{age},
+			</if>
+			<if test="sex != null">
+				sex = #{sex}
+			</if>
+		</set>
+		<where>
+			<if test="stuId != null">
+				stuId = #{stuId}
+			</if>
+		</where>
+	</update>
+	<select id="queryStuByMultiId" resultType="student">
+		select * from Student
+		<foreach item="i" collection="list" open="where stuId in(" close=")" separator=",">
+			#{i}
+		</foreach>
+	</select>
+</mapper>

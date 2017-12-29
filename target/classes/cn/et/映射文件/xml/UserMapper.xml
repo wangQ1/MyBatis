@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	命名空间， 用于区分多個文件中的相同sql语句的唯一标识符
+		namespace="a" id="test" namespace="b" id="test"
+			a.test					b.test 
+	使用#{键}取值，实际上是先使用占位符？的方式的sql语句,然后通过键匹配，自动填充
+	使用${键}取值,是直接将值填充，等同于"+键+"的方式, 如果是字符串需要自己添加‘’单引号
+	在模糊查询时，必须使用${键}的方式取值
+-->
+
+
+<!-- 接口绑定, 将接口中的方法与对应的sql声明进行绑定 -->
+<mapper namespace="cn.et.映射文件.xml.UserMapper">
+	<sql id="commonSql"> <!-- 封装重复的sql语句 -->
+		select * from
+	</sql>
+	<select id="queryUserByUserName" resultType="map">
+		<include refid="commonSql"></include>	<!-- 调用sql -->
+		USERMANAGE where userName like '%${userName}%'
+	</select>
+	<!--
+		唯一标识   queryUser  必须带返回类型 	对应UserMapper中的queryUser方法 
+		每种返回的数据类型，都可以myBatis配置文件中通过typeAliases标签自定义简单的别名
+		(TypeAliasRegistry类中定义了一些常用的类的别名    如：java.util.Map=map )
+	-->
+	<select id="queryUser" resultType="user"><!-- 获取参数的3种方式 -->
+		select * from USERMANAGE where userName=#{0} and adress=#{1}<!--第一种：通过索引获取参数的参数，索引从0开始 -->
+	</select>
+	<!-- 对应UserMapper中的deleteUser方法  -->
+	<delete id="deleteUser">
+		delete from USERMANAGE where userId=#{param1}<!-- 第二种：同默认的键获取参数，param1 ，从1开始 -->
+	</delete>
+	<insert id="saveUser">
+		insert into USERMANAGE values(USER_SEQ.NEXTVAL, #{0}, #{1})
+	</insert>
+	<update id="updateUser">
+		update USERMANAGE set userName=#{1}, adress=#{adress} where userId=#{0}<!-- 第三种：自定义参数名 -->
+	</update>
+	
+	
+  	<insert id="saveUsers">
+  		<!-- selectKey在程序中获取插入的主键      返回的参数填充到User类的userId属性中 -->
+     	<selectKey keyProperty="userId" order="BEFORE" resultType="int" statementType="STATEMENT">
+        	select USER_SEQ.NEXTVAL from dual
+        	<!-- select CAST(RANDOM()*1000000 as INTEGER) a from SYSIBM.SYSDUMMY1   随机生成一个id -->
+     	</selectKey>
+     	insert into USERMANAGE values(#{userId},#{userName},#{adress})
+  	</insert>
+  	
+	<!-- jdbc调用存储过程语法 
+	      {call 存储过程名(?,?)}
+	                    函数语法
+	      {?=call 函数名(?,?)}
+	-->
+	<select id="call_prg_add" resultType="java.util.Map" statementType="CALLABLE">
+		{call prg_add(
+			#{p1,mode=IN,jdbcType=NUMERIC},
+			#{p2,mode=IN,jdbcType=NUMERIC},
+			#{result,mode=OUT,jdbcType=NUMERIC})<!-- 返回值自动填充到map中的result -->
+		}
+	</select>
+	
+	<select id="call_fun_add" resultType="java.util.Map" statementType="CALLABLE">
+		{#{result,mode=OUT,jdbcType=NUMERIC}=call fun_add(<!-- 返回值自动填充到map中的result -->
+			#{p1,mode=IN,jdbcType=NUMERIC},
+			#{p2,mode=IN,jdbcType=NUMERIC})
+		}
+	</select>
+</mapper>

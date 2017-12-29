@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	命名空间， 用于区分多個文件中的相同sql语句的唯一标识符
+		namespace="a" id="test" namespace="b" id="test"
+			a.test					b.test 
+	使用#{键}取值，实际上是先使用占位符？的方式的sql语句,然后通过键匹配，自动填充
+	使用${键}取值,是直接将值填充，等同于"+键+"的方式, 如果是字符串需要自己添加‘’单引号
+	在模糊查询时，必须使用${键}的方式取值
+-->
+
+<!-- 接口绑定, 将接口中的方法与对应的sql声明进行绑定 -->
+<mapper namespace="cn.et.关系映射.xml.ClassMapper">
+	<!-- 
+	      结果集映射：当数据库的列名和实体类的属性名 不一致时  需要建立 列名和属性名的映射关系 
+	               结果集映射返回的结果类型是相同   只是多了一层关系
+	                                    类型                                  映射的Id           相同的属性名自动映射-->
+	<resultMap type="classes" id="classMap" autoMapping="true">
+		<!-- 主键使用id 非主键使用result -->
+		<id column="claId" property="claId"/>
+		<result column="claName" property="claName"/>
+	</resultMap>
+	<resultMap type="classes" id="claMap" autoMapping="true"><!-- 映射一对多关系 -->
+		<!-- 主键使用id 非主键使用result -->
+		<id column="claId" property="claId" />
+		<!-- 调用一个查询方法  使用claId过滤获取结果集 填充到classes类中的stuList集合中-->
+		<collection property="stuList" column="claId" javaType="arraylist"
+		select="cn.et.关系映射.xml.StudentMapper.queryStuByClaId" autoMapping="true">
+		</collection><!-- association表示返回结果为对象， collection表示返回结果为集合, 需要说明集合的类型  (javaType="arraylist") -->
+	</resultMap>
+	<select id="queryAllClass" resultMap="classMap">
+		select * from Classes
+	</select>
+	<select id="queryClaById" resultType="Classes">
+		select * from Classes where claId = #{0}
+	</select>
+	<select id="queryClassById" resultMap="claMap">
+		select * from Classes where claId = #{0}
+	</select>
+</mapper>

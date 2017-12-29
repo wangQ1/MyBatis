@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	命名空间， 用于区分多個文件中的相同sql语句的唯一标识符
+		namespace="a" id="test" namespace="b" id="test"
+			a.test					b.test 
+	使用#{键}取值，实际上是先使用占位符？的方式的sql语句,然后通过键匹配，自动填充
+	使用${键}取值,是直接将值填充，等同于"+键+"的方式, 如果是字符串需要自己添加‘’单引号
+	在模糊查询时，必须使用${键}的方式取值
+-->
+
+
+<mapper namespace="a">
+	<!--
+		唯一标识   selectUser  必须带返回类型 	对应UserMapper中的queryUser方法 
+		每种返回的数据类型，都可以myBatis配置文件中通过typeAliases标签自定义简单的别名
+		(TypeAliasRegistry类中定义了一些常用的类的别名    如：java.util.Map=map )
+	-->
+	<select id="selectUser" resultType="java.util.Map">
+		select * from USERMANAGE
+	</select>
+	<select id="selectUserById" resultType="java.util.Map">
+		select * from USERMANAGE where userId=#{userId}
+	</select>
+	<update id="updateUser">
+		update USERMANAGE set userName=#{userName}, adress=#{adress} where userId=#{userId}
+	</update>
+	<delete id="deleteUser">
+		delete from USERMANAGE where userId=1
+	</delete>
+	<insert id="saveUser">
+		insert into USERMANAGE values(USER_SEQ.NEXTVAL, #{userName}, #{adress})
+	</insert>
+</mapper>
